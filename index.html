@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Superposition Chess: Entangled Gambit | Codex Quantum Engine</title>
+  
+  <!-- Google Fonts: Orbitron & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@500;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Header de la Aplicación -->
+  <header class="app-header">
+    <div class="brand-section">
+      <div class="brand-icon">⚛</div>
+      <div>
+        <h1>Superposition Chess: Entangled Gambit</h1>
+        <div style="display: flex; gap: 0.5rem; align-items: center; margin-top: 2px;">
+          <span class="brand-badge">Espacio de Hilbert H=(C²)^n</span>
+          <span class="brand-badge" style="border-color: var(--quantum-magenta); color: var(--quantum-magenta);">OpenQASM 3.0 / Cirq</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-controls">
+      <div class="status-pill">
+        <div id="status-dot" class="pill-dot"></div>
+        <span id="turn-text">Turno: Blancas</span>
+      </div>
+      <button id="btn-open-rules" class="btn-secondary" title="Ver Reglas del Ajedrez Cuántico">📜 Reglas Cuánticas</button>
+      <button id="btn-toggle-audio" class="btn-secondary">Audio Sintético: ON</button>
+    </div>
+  </header>
+
+  <!-- Layout Principal -->
+  <main class="main-layout">
+    <!-- Columna Izquierda: Tablero Cuántico e Interacción -->
+    <section class="board-section">
+      <div class="board-container-wrapper">
+        <div class="board-wrapper">
+          <canvas id="chess-canvas" width="560" height="560"></canvas>
+          <svg id="entanglement-overlay" width="560" height="560"></svg>
+        </div>
+
+        <!-- Barra de Modos de Jugada Cuántica -->
+        <div class="quantum-action-bar">
+          <button id="btn-mode-classical" class="btn-quantum-action active" data-mode="CLASSICAL">
+            <span>♟</span> Clásico
+          </button>
+          <button id="btn-mode-split" class="btn-quantum-action btn-split" data-mode="SPLIT">
+            <span>⑂</span> Split Move (Hadamard)
+          </button>
+          <button id="btn-mode-merge" class="btn-quantum-action" data-mode="MERGE">
+            <span>⨀</span> Merge (Interferencia)
+          </button>
+          <button id="btn-mode-entangle" class="btn-quantum-action btn-entangle" data-mode="ENTANGLE">
+            <span>🔗</span> Entangle CNOT
+          </button>
+          <button id="btn-reset-board" class="btn-secondary" style="margin-left: auto;">
+            <span>🔄</span> Reiniciar
+          </button>
+        </div>
+
+        <div id="action-instructions" class="action-instructions" style="margin-top: 0.75rem;">
+          Modo Clásico: Selecciona tu pieza y luego la casilla de destino.
+        </div>
+      </div>
+    </section>
+
+    <!-- Columna Derecha: Telemetría Cuántica, Born Meter, IA y Circuitos -->
+    <aside class="sidebar-section">
+      <!-- Medidor de Colapso de Born -->
+      <section class="card-panel">
+        <div class="panel-header">
+          <h2 class="panel-title">
+            <span>⚡</span> Medición Proyectiva (Born)
+          </h2>
+          <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--quantum-cyan);">P = |⟨ψ|k⟩|²</span>
+        </div>
+        <div class="born-meter-container">
+          <div class="meter-stat-row">
+            <span id="meter-prob-text">Esperando interacción cuántica...</span>
+          </div>
+          <div class="meter-bar-outer">
+            <div id="meter-fill" class="meter-bar-fill"></div>
+          </div>
+          <div id="collapse-log" class="collapse-events-log">
+            <div>> Motor Cuántico listo. Estado inicial normalizado sum(|alpha|²)=1.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Panel de Inteligencia Artificial & Modos -->
+      <section class="card-panel">
+        <div class="panel-header">
+          <h2 class="panel-title">
+            <span>🤖</span> Oponente IA Cuántica
+          </h2>
+          <span class="brand-badge" style="border-color: var(--quantum-cyan); color: var(--quantum-cyan);">Expectiminimax</span>
+        </div>
+        <div class="ai-settings-grid">
+          <button id="btn-toggle-ai" class="btn-secondary" style="border-color: var(--quantum-cyan);">
+            Oponente IA: ACTIVADO
+          </button>
+          <div style="font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; justify-content: center; background: hsl(225, 30%, 12%); border-radius: 6px;">
+            Dificultad: Profundidad 2
+          </div>
+        </div>
+        <p style="font-size: 0.78rem; color: var(--text-muted);">
+          La IA evalúa árboles probabilísticos ponderando el valor esperado de las piezas en superposición y bonificaciones de entrelazamiento.
+        </p>
+      </section>
+
+      <!-- Exportador OpenQASM 3.0 & Cirq -->
+      <section class="card-panel">
+        <div class="panel-header">
+          <h2 class="panel-title">
+            <span>💻</span> Circuito Cuántico Generado
+          </h2>
+          <div class="qasm-toolbar">
+            <button id="btn-view-qasm" class="btn-secondary active" style="font-size: 0.7rem; padding: 0.2rem 0.5rem;">OpenQASM 3.0</button>
+            <button id="btn-view-cirq" class="btn-secondary" style="font-size: 0.7rem; padding: 0.2rem 0.5rem;">Google Cirq</button>
+          </div>
+        </div>
+        <div class="qasm-container">
+          <pre id="qasm-code" class="qasm-code-box">// Inicializando circuito cuántico...</pre>
+        </div>
+      </section>
+
+      <!-- Historial de Jugadas -->
+      <section class="card-panel">
+        <div class="panel-header">
+          <h2 class="panel-title">
+            <span>📜</span> Bitácora del Gambito
+          </h2>
+        </div>
+        <div id="history-list" class="history-list">
+          <!-- Jugadas agregadas dinámicamente -->
+        </div>
+      </section>
+    </aside>
+  </main>
+
+  <!-- Modal de Reglas Cuánticas -->
+  <div id="rules-modal" class="modal-overlay">
+    <div class="modal-dialog">
+      <h3 class="modal-title">Reglas de Superposition Chess: Entangled Gambit</h3>
+      <div class="modal-body">
+        <p><strong>1. Espacio de Hilbert y Superposición:</strong></p>
+        <p>A diferencia del ajedrez tradicional donde cada pieza ocupa exactamente una casilla determinista, aquí las piezas pueden existir en una superposición coherente |ψ⟩ = α|escaque_1⟩ + β|escaque_2⟩ con probabilidades |α|² + |β|² = 1.</p>
+        <br>
+        <p><strong>2. Split Move (Hadamard):</strong></p>
+        <p>Cualquier pieza clásica puede dividirse en dos casillas destino legales. Cada rama resultante tiene una probabilidad del 50% de existencia hasta ser observada.</p>
+        <br>
+        <p><strong>3. Merge Move (Interferencia de Fase):</strong></p>
+        <p>Si dos ramas de una misma pieza pueden alcanzar una casilla destino en común, pueden fusionarse mediante interferencia cuántica constructiva.</p>
+        <br>
+        <p><strong>4. Entangle CNOT (Entrelazamiento):</strong></p>
+        <p>Puedes entrelazar dos piezas formando un par correlacionado tipo Bell/CNOT. Medir una provocará una reacción instantánea no-local en la otra.</p>
+        <br>
+        <p><strong>5. Medición Proyectiva y Regla de Born:</strong></p>
+        <p>Cuando una pieza intenta capturar o entrar en una casilla que contiene ramas en superposición, se desencadena una medición proyectiva según Born. El rayo de colapso materializa la casilla en |1⟩ (presencia) o |0⟩ (vacío), colapsando instantáneamente el resto de ramas correlacionadas.</p>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-close-rules" class="btn-quantum-action">Entendido</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts ES Modules -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
